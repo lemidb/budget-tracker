@@ -1,4 +1,3 @@
-// components/site-header.tsx
 "use client";
 
 import Link from "next/link";
@@ -34,7 +33,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 // Helper function to get user initials from name
 function getInitials(name: string | undefined): string {
   if (!name) return "U";
-  
+
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) {
     // First letter of first name + first letter of last name
@@ -51,6 +50,8 @@ export function SiteHeader() {
   const logoutMutation = useLogout();
   const { user } = useAuth();
 
+
+
   const navLinks = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Transactions", href: "/transactions" },
@@ -63,7 +64,7 @@ export function SiteHeader() {
   };
 
   const userInitials = getInitials(user?.name);
-  const userName = user?.name || "User";
+  const userName = user?.name || "";
   const userEmail = user?.email || "";
 
   return (
@@ -166,41 +167,43 @@ export function SiteHeader() {
                     {link.label}
                   </Link>
                 ))}
-                
+
                 {/* User Profile Section */}
-                <div className="border-t border-border mt-4 pt-4">
-                  <div className="flex items-center gap-3 px-3 pb-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
-                        {userInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col gap-0.5 min-w-0 flex-1 items-center justify-center">
-                      <div className="flex items-center gap-1.5">
-                        <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {userName}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5 pl-5">
-                        <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
-                        <span className="text-xs text-muted-foreground truncate">
-                          {userEmail}
-                        </span>
+                {user && (
+                  <div className="border-t border-border mt-4 pt-4">
+                    <div className="flex items-center gap-3 px-3 pb-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                          {userInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col gap-0.5 min-w-0 flex-1 items-center justify-center">
+                        <div className="flex items-center gap-1.5">
+                          <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <span className="text-sm font-medium text-foreground truncate">
+                            {userName}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 pl-5">
+                          <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground truncate">
+                            {userEmail}
+                          </span>
+                        </div>
                       </div>
                     </div>
+
+                    <div className="px-3 pb-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full inline-flex items-center gap-2 justify-start px-3 py-2.5 rounded-lg text-sm text-muted-foreground transition-colors hover:bg-primary hover:text-foreground"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
                   </div>
-                  
-                  <div className="px-3 pb-2">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full inline-flex items-center gap-2 justify-start px-3 py-2.5 rounded-lg text-sm text-muted-foreground transition-colors hover:bg-primary hover:text-foreground"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      <span>Logout</span>
-                    </button>
-                  </div>
-                </div>
+                )}
               </nav>
             </SheetContent>
           </Sheet>

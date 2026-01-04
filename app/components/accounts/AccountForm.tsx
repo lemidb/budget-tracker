@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,6 +34,7 @@ import {
 import { useCreateAccount, useUpdateAccount } from "@/lib/mutations/accounts";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { Account } from "@/types/accounts";
 
 const accountTypeOptions = [
   { value: "CASH", label: "Cash", icon: Wallet, color: "text-green-600" },
@@ -91,25 +92,20 @@ const createAccountSchema = z.object({
     "SAVINGS",
     "OTHER",
   ]),
-  Balance: z
-    .string()
-    .regex(/^-?\d+(\.\d{1,2})?$/, "Enter a valid amount")
-    .default("0.00"),
+  balance: z.coerce.number().default(0),
   currency: z.string().length(3, "Select a valid currency").default("USD"),
 });
 
-const updateAccountSchema = createAccountSchema
-  .extend({
-    isActive: z.boolean().default(true),
-  })
-  .omit({ Balance: true });
+const updateAccountSchema = createAccountSchema.extend({
+  isActive: z.boolean().default(true),
+});
 
 type AccountFormData = z.infer<typeof createAccountSchema>;
 type UpdateAccountFormData = z.infer<typeof updateAccountSchema>;
 
 interface AccountFormProps {
   mode?: "create" | "edit";
-  account?: any;
+  account?: Account;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
@@ -130,17 +126,18 @@ export function AccountForm({
     ) as any,
     defaultValues: account
       ? {
-          name: account.name,
-          type: account.type,
-          currency: account.currency,
-          isActive: account.isActive !== false,
-        }
+        name: account.name,
+        type: account.type,
+        currency: account.currency,
+        balance: account.balance ? parseFloat(account.balance.toString()) : 0.00,
+        isActive: account.isActive !== false,
+      }
       : {
-          name: "",
-          type: "BANK",
-          Balance: "0.00",
-          currency: "USD",
-        },
+        name: "",
+        type: "BANK",
+        balance: 0.00,
+        currency: "USD",
+      },
   });
 
   const onSubmit = async (data: any) => {
@@ -152,16 +149,14 @@ export function AccountForm({
         type: data.type,
         currency: data.currency,
         isActive: data.isActive ?? true,
-        ...(mode === "create" && {
-          balance: parseFloat(data.initialBalance || "0").toFixed(2),
-        }),
+        balance: data.balance,
       };
 
       if (mode === "create") {
         await createAccount.mutateAsync(payload);
       } else {
         await updateAccount.mutateAsync({
-          id: account.id,
+          id: account?.id,
           ...payload,
         });
       }
@@ -177,6 +172,8 @@ export function AccountForm({
   const selectedTypeConfig = accountTypeOptions.find(
     (opt) => opt.value === selectedType
   );
+
+  const balance = form.watch("balance");
 
   return (
     <Form {...form}>
@@ -249,7 +246,7 @@ export function AccountForm({
 
           <FormField
             control={form.control}
-            name="Balance"
+            name="balance"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Account Balance</FormLabel>
@@ -259,18 +256,10 @@ export function AccountForm({
                       $
                     </div>
                     <Input
-                      type="text"
+                      type="number"
+                      step="0.01"
                       className="pl-8"
-                      placeholder="0.00"
                       {...field}
-                      onChange={(e) => {
-                        // Allow only numbers and one decimal point
-                        const value = e.target.value.replace(/[^0-9.]/g, "");
-                        const parts = value.split(".");
-                        if (parts.length > 2) return;
-                        if (parts[1]?.length > 2) return;
-                        field.onChange(value || "0.00");
-                      }}
                     />
                   </div>
                 </FormControl>
@@ -362,16 +351,14 @@ export function AccountForm({
                 <div className="font-medium">{form.watch("currency")}</div>
               </div>
             </div>
-            {mode === "create" && (
-              <div className="text-center p-3 bg-muted rounded-lg">
-                <div className="text-sm text-muted-foreground mb-1">
-                  Starting Balance
-                </div>
-                <div className="text-2xl font-bold">
-                  ${parseFloat(form.watch("Balance") || "0").toFixed(2)}
-                </div>
+            <div className="text-center p-3 bg-muted rounded-lg">
+              <div className="text-sm text-muted-foreground mb-1">
+                Starting Balance
               </div>
-            )}
+              <div className="text-2xl font-bold">
+                ${parseFloat((form.watch("balance") || 0).toString()).toFixed(2)}
+              </div>
+            </div>
           </CardContent>
         </Card>
 

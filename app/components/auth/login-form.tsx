@@ -1,7 +1,5 @@
-// app/components/auth/login.tsx
 "use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useLogin from "@/lib/mutations/auth/login";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const loginSchema = z.object({
     email: z.string().email("Please enter a valid email address"),
@@ -37,6 +36,25 @@ export default function LoginPage() {
 
     const { mutate: login, isPending, error } = useLogin();
     const [showPassword, setShowPassword] = useState(false);
+    const pathname = usePathname();
+    const isLoginPage: boolean = pathname === "/auth/login";
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!isLoginPage && !isPending && !error) {
+            setIsLoading(false);
+        }
+        if (isLoginPage && isPending) {
+            if (error) {
+                setIsLoading(false);
+            } else {
+                setIsLoading(true);
+            }
+        }
+        if (isLoginPage && !isPending && error) {
+            setIsLoading(false);
+        }
+    }, [isLoginPage, isPending, error]);
 
     const onSubmit = (data: LoginFormData) => {
         login(data);
@@ -44,9 +62,9 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex flex- items-center justify-center bg-background px-4">
-            <div className="w-full min-w-sm max-w-md rounded-2xl border bg-card p-8 shadow-sm">
-                <div className="text-center mb-8 font-[poppins]">
-                    <h1 className="text-2xl font-semibold tracking-tight ">Welcome back</h1>
+            <div className="w-full min-w-sm max-w-md md:min-w-md rounded-2xl border bg-card p-8 space-y-6 shadow-sm">
+                <div className="text-center py-8 font-[poppins]">
+                    <h1 className="text-3xl font-semibold tracking-tight text-primary ">Welcome back</h1>
                     <p className="text-muted-foreground text-sm mt-2">
                         Enter your credentials to sign in
                     </p>
@@ -59,7 +77,7 @@ export default function LoginPage() {
                 )}
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
                         <FormField
                             control={form.control}
                             name="email"
@@ -121,10 +139,10 @@ export default function LoginPage() {
 
                         <Button
                             type="submit"
-                            disabled={isPending}
-                            className="w-full mt-6"
+                            disabled={isLoading}
+                            className="w-full mt-6 hover:cursor-pointer"
                         >
-                            {isPending ? (
+                            {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Signing in...

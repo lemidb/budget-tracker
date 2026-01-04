@@ -7,7 +7,7 @@ import { verifyToken } from './lib/auth/jwt';
 const publicRoutes = ['/auth/login', '/auth/signup', '/'];
 const publicApiRoutes = ['/api/v1/auth/login', '/api/v1/auth/register', '/api/v1/auth/logout'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if it's a public route

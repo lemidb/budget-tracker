@@ -1,7 +1,7 @@
-import db  from '@/app/db';
+import db from '@/app/db';
 import { accountsTable } from '@/app/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import {accountTypeEnum} from "@/app/db/schema"
+import { accountTypeEnum } from "@/app/db/schema"
 
 type accountType = typeof accountTypeEnum.enumValues[number];
 
@@ -25,7 +25,7 @@ export class AccountService {
         )
       )
       .limit(1);
-    
+
     if (!account) throw new Error('Account not found');
     return account;
   }
@@ -51,7 +51,7 @@ export class AccountService {
         isActive: data.isActive !== false,
       })
       .returning();
-    
+
     return account;
   }
 
@@ -61,10 +61,12 @@ export class AccountService {
     data: Partial<{
       name: string;
       type: accountType;
+      balance?: string;
       currency: string;
       isActive: boolean;
     }>
   ) {
+    console.log(`Here is the data: ${JSON.stringify(data, null, 2)}`)
     const [account] = await db
       .update(accountsTable)
       .set({
@@ -78,7 +80,7 @@ export class AccountService {
         )
       )
       .returning();
-    
+
     if (!account) throw new Error('Account not found');
     return account;
   }
@@ -94,7 +96,7 @@ export class AccountService {
         )
       )
       .returning();
-    
+
     if (!account) throw new Error('Account not found');
     return account;
   }
@@ -117,7 +119,7 @@ export class AccountService {
         )
       )
       .returning();
-    
+
     if (!account) throw new Error('Account not found');
     return account;
   }

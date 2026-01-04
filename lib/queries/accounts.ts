@@ -1,35 +1,6 @@
-// /lib/queries/accounts.ts
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/client';
-
-// Types based on your schema
-export interface Account {
-  id: number;
-  userId: number;
-  name: string;
-  type: 'CASH' | 'BANK' | 'CREDIT_CARD' | 'INVESTMENT' | 'SAVINGS' | 'OTHER';
-  balance: string;
-  currency: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AccountSummary {
-  totalBalance: number;
-  activeAccounts: number;
-  accountTypes: string[];
-  recentTransactions: number;
-}
-
-export interface AccountsFilters {
-  type?: Account['type'];
-  isActive?: boolean;
-  search?: string;
-  minBalance?: number;
-  maxBalance?: number;
-}
-
+import { Account, AccountsFilters, AccountSummary } from '@/types/accounts';
 /**
  * Query key factories for consistent key management
  */
@@ -46,18 +17,18 @@ export const accountKeys = {
 /**
  * Fetch all accounts for the current user
  */
-export const useAccounts = (filters?: AccountsFilters) => {
+export const useAccountsQuery = (filters?: AccountsFilters) => {
   return useQuery({
     queryKey: accountKeys.list(filters || {}),
     queryFn: async () => {
       const params = new URLSearchParams();
-      
+
       if (filters?.type) params.append('type', filters.type);
       if (filters?.isActive !== undefined) params.append('isActive', filters.isActive.toString());
       if (filters?.search) params.append('search', filters.search);
       if (filters?.minBalance !== undefined) params.append('minBalance', filters.minBalance.toString());
       if (filters?.maxBalance !== undefined) params.append('maxBalance', filters.maxBalance.toString());
-      
+
       const url = params.toString() ? `/accounts?${params.toString()}` : '/accounts';
       const { data } = await apiClient.get<Account[]>(url);
       return data;
@@ -184,11 +155,11 @@ export const useAccountsGroupedByType = () => {
         SAVINGS: [],
         OTHER: [],
       };
-      
+
       accounts.forEach(account => {
         grouped[account.type].push(account);
       });
-      
+
       return grouped;
     },
     staleTime: 1000 * 60 * 5,
@@ -250,7 +221,7 @@ export const useCurrencyDistribution = () => {
     },
     select: (accounts) => {
       const distribution: Record<string, { count: number; total: number }> = {};
-      
+
       accounts.forEach(account => {
         if (!distribution[account.currency]) {
           distribution[account.currency] = { count: 0, total: 0 };
@@ -258,7 +229,7 @@ export const useCurrencyDistribution = () => {
         distribution[account.currency].count++;
         distribution[account.currency].total += parseFloat(account.balance);
       });
-      
+
       return distribution;
     },
     staleTime: 1000 * 60 * 5,
@@ -279,7 +250,7 @@ export const useRecentAccounts = (days: number = 7) => {
     select: (accounts) => {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - days);
-      
+
       return accounts.filter(account => {
         const createdDate = new Date(account.createdAt);
         return createdDate >= cutoffDate;
@@ -295,7 +266,7 @@ export const useRecentAccounts = (days: number = 7) => {
  */
 export const usePrefetchAccounts = () => {
   const queryClient = useQueryClient();
-  
+
   return () => {
     queryClient.prefetchQuery({
       queryKey: accountKeys.list({}),
@@ -312,7 +283,7 @@ export const usePrefetchAccounts = () => {
  */
 export const useInvalidateAccounts = () => {
   const queryClient = useQueryClient();
-  
+
   return () => {
     queryClient.invalidateQueries({ queryKey: accountKeys.all });
   };
@@ -323,7 +294,7 @@ export const useInvalidateAccounts = () => {
  */
 export const useGetAccountFromCache = () => {
   const queryClient = useQueryClient();
-  
+
   return (accountId: number) => {
     return queryClient.getQueryData<Account>(accountKeys.detail(accountId));
   };
@@ -334,21 +305,21 @@ export const useGetAccountFromCache = () => {
  */
 export const useUpdateAccountInCache = () => {
   const queryClient = useQueryClient();
-  
+
   return (updatedAccount: Partial<Account> & { id: number }) => {
     queryClient.setQueryData<Account[]>(accountKeys.list({}), (oldAccounts) => {
       if (!oldAccounts) return oldAccounts;
-      
-      return oldAccounts.map(account => 
-        account.id === updatedAccount.id 
+
+      return oldAccounts.map(account =>
+        account.id === updatedAccount.id
           ? { ...account, ...updatedAccount }
           : account
       );
     });
-    
+
     queryClient.setQueryData<Account>(accountKeys.detail(updatedAccount.id), (oldAccount) => {
       if (!oldAccount) return oldAccount;
-      
+
       return { ...oldAccount, ...updatedAccount };
     });
   };
@@ -362,13 +333,13 @@ export const useFilteredAccounts = (filters: AccountsFilters) => {
     queryKey: accountKeys.list(filters),
     queryFn: async () => {
       const params = new URLSearchParams();
-      
+
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           params.append(key, value.toString());
         }
       });
-      
+
       const url = `/api/accounts?${params.toString()}`;
       const { data } = await apiClient.get<Account[]>(url);
       return data;

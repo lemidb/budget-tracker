@@ -1,4 +1,3 @@
-// lib/mutations/auth/login.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/client';
@@ -33,7 +32,6 @@ const useLogin = () => {
       // Token is now stored in an HTTP-only cookie by the server.
       // Invalidate and refetch auth query to update AuthContext
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
-
       // Redirect to dashboard after successful login
       router.push('/dashboard');
       router.refresh(); // Refresh to update auth state

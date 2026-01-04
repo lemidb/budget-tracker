@@ -58,7 +58,7 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full min-w-md max-w-md rounded-2xl border bg-card p-8 shadow-sm">
+      <div className="w-full min-w-md max-w-md rounded-2xl border bg-card px-8 py-12 shadow-sm">
         <h1 className="mb-8 text-center text-2xl font-semibold tracking-tight font-[poppins]">
           Budget Tracker
         </h1>

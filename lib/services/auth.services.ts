@@ -1,4 +1,4 @@
-import db  from '@/app/db';
+import db from '@/app/db';
 import { usersTable } from '@/app/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';

@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/app/components/dashboard/site-header";
 import { auth } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,9 +43,11 @@ export default async function ProtectedLayout({
 
   return (
     <div className="flex min-w-0 flex-1 flex-col">
-      <SiteHeader />
-      <SidebarInset className="flex-1">{children}</SidebarInset>
-      <Toaster />
+      <AuthProvider>
+        <SiteHeader />
+        <SidebarInset className="flex-1">{children}</SidebarInset>
+        <Toaster />
+      </AuthProvider>
     </div>
   );
 }

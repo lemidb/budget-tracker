@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: async () => {
-      const response = await apiClient.get<{ user: User }>('/v1/auth/me');
+      const response = await apiClient.get<{ user: User }>('/auth/me');
       return response.data.user;
     },
     retry: false,
