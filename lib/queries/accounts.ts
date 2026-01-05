@@ -179,8 +179,8 @@ export const useAccountsSortedByBalance = (order: 'asc' | 'desc' = 'desc') => {
     },
     select: (accounts) => {
       return [...accounts].sort((a, b) => {
-        const balanceA = parseFloat(a.balance);
-        const balanceB = parseFloat(b.balance);
+        const balanceA = parseFloat(String(a.balance));
+        const balanceB = parseFloat(String(b.balance));
         return order === 'desc' ? balanceB - balanceA : balanceA - balanceB;
       });
     },
@@ -201,7 +201,7 @@ export const useTotalBalance = () => {
     },
     select: (accounts) => {
       return accounts.reduce((total, account) => {
-        return total + parseFloat(account.balance);
+        return total + parseFloat(String(account.balance));
       }, 0);
     },
     staleTime: 1000 * 30, // 30 seconds (balance updates frequently)
@@ -227,7 +227,7 @@ export const useCurrencyDistribution = () => {
           distribution[account.currency] = { count: 0, total: 0 };
         }
         distribution[account.currency].count++;
-        distribution[account.currency].total += parseFloat(account.balance);
+        distribution[account.currency].total += parseFloat(String(account.balance));
       });
 
       return distribution;
@@ -404,15 +404,15 @@ export const formatAccountBalance = (account: Account): string => {
     currency: account.currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(parseFloat(account.balance));
+  }).format(parseFloat(String(account.balance)));
 };
 
 // Helper to check if account is empty (zero balance)
 export const isAccountEmpty = (account: Account): boolean => {
-  return parseFloat(account.balance) === 0;
+  return parseFloat(String(account.balance)) === 0;
 };
 
 // Helper to check if account is negative (for credit cards)
 export const isAccountNegative = (account: Account): boolean => {
-  return parseFloat(account.balance) < 0;
+  return parseFloat(String(account.balance)) < 0;
 };
