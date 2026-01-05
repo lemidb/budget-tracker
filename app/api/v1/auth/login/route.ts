@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { authService } from '../../../../../lib/services/auth.services';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic'; 
+
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(6, 'Password is required'),

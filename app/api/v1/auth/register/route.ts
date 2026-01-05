@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { authService } from '../../../../../lib/services/auth.services';
 import { z } from 'zod';
+export const dynamic = 'force-dynamic'; 
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email'),
