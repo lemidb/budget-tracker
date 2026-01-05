@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { accountService } from '@/lib/services/account.service';
 import { auth } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
 // Middleware handles authentication, so we can safely assume user is authenticated
 export async function GET(request: NextRequest) {
   try {
