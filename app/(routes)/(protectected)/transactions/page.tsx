@@ -1,6 +1,18 @@
-export default function Page() {
-    return <div className="flex h-full w-full flex-col justify-center items-center">
-        <h4 className="font-[roboto] text-2xl leading-loose font-medium">Transactions Page</h4>
-    </div>;
 
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import TransactionComponent from "@/app/components/Transactions/transaction-component";
+
+export default async function TransactionsPage() {
+    const session = await auth();
+
+    if (!session?.user) {
+        redirect("/login");
+    }
+
+    return (
+        <div className="flex-1 space-y-4 p-8 pt-6">
+            <TransactionComponent />
+        </div>
+    );
 }

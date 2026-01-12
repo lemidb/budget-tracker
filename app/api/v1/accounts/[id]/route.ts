@@ -10,7 +10,6 @@ export async function PUT(
 ) {
   try {
     const session = await auth();
-    // Session is guaranteed by middleware, but TypeScript needs the check
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

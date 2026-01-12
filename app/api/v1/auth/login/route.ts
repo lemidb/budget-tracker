@@ -1,9 +1,8 @@
-// app/api/auth/login/route.ts
 import { NextResponse } from 'next/server';
 import { authService } from '../../../../../lib/services/auth.services';
 import { z } from 'zod';
 
-export const dynamic = 'force-dynamic'; 
+export const dynamic = 'force-dynamic';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -17,17 +16,14 @@ export async function POST(request: Request) {
 
     const result = await authService.login(email, password);
 
-    // Create response and set access token in HTTP-only cookie
     const response = NextResponse.json(result);
 
-    // Store token as a secure, HTTP-only cookie so it is sent automatically
-    // with `withCredentials: true` requests from the client.
     response.cookies.set('accessToken', result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 1,
     });
 
     return response;

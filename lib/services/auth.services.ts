@@ -6,7 +6,6 @@ import { generateToken } from '@/lib/auth/jwt';
 
 export class AuthService {
     async register(email: string, password: string, name: string) {
-        // Check if user already exists
         const [existingUser] = await db
             .select()
             .from(usersTable)
@@ -17,10 +16,9 @@ export class AuthService {
             throw new Error('User already exists');
         }
 
-        // Hash password
+
         const hashedPassword = await hashPassword(password);
 
-        // Create user
         const [newUser] = await db
             .insert(usersTable)
             .values({
@@ -35,13 +33,11 @@ export class AuthService {
                 passwordHash: usersTable.passwordHash,
             });
 
-        // Generate token
         const token = generateToken({
             userId: newUser.id,
             email: newUser.email,
         });
 
-        // Omit passwordHash from the returned user object
         const { passwordHash: _, ...userWithoutPassword } = newUser;
 
         return {
@@ -51,7 +47,6 @@ export class AuthService {
     }
 
     async login(email: string, password: string) {
-        // Find user
         const [user] = await db
             .select({
                 id: usersTable.id,
@@ -67,19 +62,16 @@ export class AuthService {
             throw new Error('Invalid credentials');
         }
 
-        // Verify password
         const isValidPassword = await verifyPassword(password, user.passwordHash);
         if (!isValidPassword) {
             throw new Error('Invalid credentials');
         }
 
-        // Generate token
         const token = generateToken({
             userId: user.id,
             email: user.email,
         });
 
-        // Omit passwordHash from the returned user object
         const { passwordHash: _, ...userWithoutPassword } = user;
 
         return {
@@ -88,7 +80,6 @@ export class AuthService {
         };
     }
 
-    // Add a method to get user by ID without sensitive data
     async getUserById(userId: number) {
         const [user] = await db
             .select({
