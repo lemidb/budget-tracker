@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Category, useGetCategories } from "@/lib/queries/categories";
 import { useDeleteCategory } from "@/lib/mutations/categories";
 import { CategoryForm } from "@/app/components/Categories/category-form";
+import { formatCustomDate } from "@/lib/utils";
 
 export default function BudgetCategoryPage() {
     const { data: categories, isLoading } = useGetCategories();
@@ -60,7 +61,7 @@ export default function BudgetCategoryPage() {
 
     if (isLoading) {
         return (
-            <div className="p-6 space-y-6">
+            <div className="p-6 container mx-auto space-y-6">
                 <div className="flex justify-between items-center">
                     <Skeleton className="h-10 w-48" />
                     <Skeleton className="h-10 w-32" />
@@ -75,7 +76,7 @@ export default function BudgetCategoryPage() {
     }
 
     return (
-        <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="w-full container flex flex-col h-full space-y-6 mx-auto max-w-7xl p-6 pt-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Categories</h1>
@@ -121,8 +122,8 @@ export default function BudgetCategoryPage() {
                                 <Badge
                                     variant={category.isExpense ? "destructive" : "default"}
                                     className={`bg-opacity-10 text-opacity-100 px-2 py-1 ${category.isExpense
-                                        ? "bg-red-500 text-red-600 hover:bg-red-500/20"
-                                        : "bg-emerald-500 text-emerald-600 hover:bg-emerald-500/20"
+                                        ? "bg-red-500 text-white hover:bg-red-500/20 dark:bg-red-500/20 dark:text-red-500"
+                                        : "bg-emerald-500 text-emerald-600 hover:bg-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-600"
                                         }`}
                                 >
                                     {category.isExpense ? (
@@ -136,7 +137,7 @@ export default function BudgetCategoryPage() {
                                     )}
                                 </Badge>
                             </CardTitle>
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -168,7 +169,7 @@ export default function BudgetCategoryPage() {
                                 <div>
                                     <div className="font-bold text-lg">{category.name}</div>
                                     <div className="text-xs text-muted-foreground">
-                                        Created {new Date(category.createdAt).toLocaleDateString()}
+                                        Created {formatCustomDate(category.createdAt)}
                                     </div>
                                 </div>
                             </div>
@@ -200,8 +201,7 @@ export default function BudgetCategoryPage() {
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the category
-                            <span className="font-semibold text-foreground"> "{categoryToDelete?.name}" </span>
-                            and remove it from our servers.
+                            <span className="font-semibold text-foreground"> "{categoryToDelete?.name}" </span>?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

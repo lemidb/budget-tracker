@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useDeleteTransaction } from "@/lib/mutations/transactions";
 import { cn } from "@/lib/utils";
+import DeleteTransaction from "./delete-transaction";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TransactionComponent() {
     const [filters, setFilters] = useState({});
@@ -56,7 +58,7 @@ export default function TransactionComponent() {
     const sortedDates = Object.keys(groupedTransactions || {}).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
     return (
-        <div className="flex flex-col h-full space-y-6 mx-auto max-w-7xl">
+        <div className="container flex flex-col flex-1 space-y-7 p-6 md:p-8 pt-8 h-full mx-auto max-w-7xl">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
@@ -71,12 +73,48 @@ export default function TransactionComponent() {
 
             <div className="flex-1 rounded-xl border bg-card text-card-foreground shacleardow-sm overflow-hidden">
                 {isLoading ? (
-                    <div className="flex items-center justify-center p-8">Loading...</div>
+                    <div className="w-full h-full flex flex-col gap-3 p-4">
+                        <div className="space-y-8">
+                            {Array.from({ length: 2 }).map((_, dateIndex) => (
+                                <div key={dateIndex} className="space-y-4">
+                                    {/* Date header */}
+                                    <Skeleton className="h-6 w-48" />
+
+                                    {Array.from({ length: 3 }).map((_, transIndex) => (
+                                        <div key={transIndex} className="space-y-4">
+                                            {/* Transaction row */}
+                                            <div className="flex items-center gap-4 pl-4">
+                                                <Skeleton className="h-10 w-10 rounded-full" />
+                                                <div className="flex-1 space-y-2">
+                                                    <div className="space-y-1 pt-2">
+                                                        <Skeleton className="h-5 w-[200px]" />
+                                                        <div className="flex items-center gap-2">
+                                                            <Skeleton className="h-3 w-28" />
+                                                            <Skeleton className="h-1 w-1 rounded-full" />
+                                                            <Skeleton className="h-3 w-24" />
+                                                        </div>
+                                                    </div>
+                                                    <Skeleton className="h-6 w-20 ml-auto" />
+                                                </div>
+                                            </div>
+
+                                            {/* Separator (except after last transaction) */}
+                                            {transIndex === 0 && (
+                                                <div className="pl-14">
+                                                    <Skeleton className="h-px w-full" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 ) : transactions?.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground">
                         <p>No transactions found.</p>
                         <Button variant="link" onClick={() => { setEditingTransaction(null); setIsCreateOpen(true); }}>
-                            Create one now
+                            Add one now
                         </Button>
                     </div>
                 ) : (
@@ -140,12 +178,10 @@ export default function TransactionComponent() {
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => handleEdit(transaction)}>
-                                                            <Edit className="mr-2 h-4 w-4" /> Edit
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-rose-600 focus:text-rose-600" onClick={() => handleDelete(transaction.id)}>
-                                                            <Trash className="mr-2 h-4 w-4" /> Delete
-                                                        </DropdownMenuItem>
+                                                        <Button variant="ghost" className="w-full flex justify-start" onClick={() => handleEdit(transaction)}>
+                                                            <Edit className="mr-1 h-4 w-4" /> Edit
+                                                        </Button>
+                                                        <DeleteTransaction id={transaction.id} onConfirm={handleDelete} isPending={deleteMutation.isPending} />
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </div>

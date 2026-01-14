@@ -56,6 +56,7 @@ export function SiteHeader() {
     { label: "Dashboard", href: "/dashboard" },
     { label: "Transactions", href: "/transactions" },
     { label: "Budgets", href: "/budgets" },
+    { label: "Categories", href: "/budget-category" },
     { label: "Accounts", href: "/accounts" },
   ];
 

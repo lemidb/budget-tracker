@@ -131,7 +131,7 @@ export const CategoryForm = ({ category, onClose }: CategoryFormProps) => {
                                 defaultValue={field.value ? "true" : "false"}
                             >
                                 <FormControl>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                 </FormControl>

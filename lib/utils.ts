@@ -19,3 +19,15 @@ export function formatBalance(balance: string, currency: string = "USD"): string
   const amount = parseFloat(balance) || 0;
   return formatCurrency(amount, currency);
 }
+
+export function formatCustomDate(dateInput: Date | string | number): string {
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  })
+    .format(date)
+}

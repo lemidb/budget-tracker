@@ -116,7 +116,7 @@ export default function AccountsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 md:px-28 space-y-6">
+    <div className="container max-w-8xl mx-auto py-6 md:px-28 space-y-6 pt-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
