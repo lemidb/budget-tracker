@@ -140,7 +140,7 @@ export default function BudgetComponent() {
 
 export function BudgetCardsSkeleton() {
     return (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 flex-wrap">
             {Array.from({ length: 4 }).map((_, index) => (
                 <div
                     key={index}

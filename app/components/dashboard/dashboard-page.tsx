@@ -39,7 +39,6 @@ const expenseByCategory = [
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
 
 export default function DashboardPage() {
-    // Calculate summary metrics
     const currentMonth = monthlyData[monthlyData.length - 1]
     const totalIncome = monthlyData.reduce((sum, m) => sum + m.income, 0)
     const totalExpenses = monthlyData.reduce((sum, m) => sum + m.expenses, 0)

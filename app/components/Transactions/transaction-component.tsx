@@ -30,7 +30,6 @@ export default function TransactionComponent() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState<any>(null);
 
-    // Pagination or infinite scroll could be added, for now just basic list (100 limit in service)
     const { data: transactions, isLoading } = useGetTransactions(filters);
     const deleteMutation = useDeleteTransaction();
 
@@ -45,7 +44,6 @@ export default function TransactionComponent() {
         }
     };
 
-    // Group transactions by date
     const groupedTransactions = transactions?.reduce((groups: any, transaction: any) => {
         const date = new Date(transaction.date).toISOString().split('T')[0];
         if (!groups[date]) {
@@ -77,12 +75,10 @@ export default function TransactionComponent() {
                         <div className="space-y-8">
                             {Array.from({ length: 2 }).map((_, dateIndex) => (
                                 <div key={dateIndex} className="space-y-4">
-                                    {/* Date header */}
                                     <Skeleton className="h-6 w-48" />
 
                                     {Array.from({ length: 3 }).map((_, transIndex) => (
                                         <div key={transIndex} className="space-y-4">
-                                            {/* Transaction row */}
                                             <div className="flex items-center gap-4 pl-4">
                                                 <Skeleton className="h-10 w-10 rounded-full" />
                                                 <div className="flex-1 space-y-2">
@@ -98,7 +94,6 @@ export default function TransactionComponent() {
                                                 </div>
                                             </div>
 
-                                            {/* Separator (except after last transaction) */}
                                             {transIndex === 0 && (
                                                 <div className="pl-14">
                                                     <Skeleton className="h-px w-full" />

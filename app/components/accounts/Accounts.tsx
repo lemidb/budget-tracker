@@ -27,6 +27,7 @@ import { AccountForm } from "@/app/components/accounts/AccountForm";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { Account } from "@/types/accounts";
+import DeleteAccount from "./DeleteAccount";
 
 const ACCOUNT_TYPE_CONFIG = {
   CASH: {
@@ -116,7 +117,7 @@ export default function AccountsPage() {
   }
 
   return (
-    <div className="container max-w-8xl mx-auto py-6 md:px-28 space-y-6 pt-8">
+    <div className="container w-full px-2 sm:px-4 max-w-8xl mx-auto py-6 md:px-28 space-y-6 pt-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -291,16 +292,12 @@ export default function AccountsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleEdit(account)}>
+                        <DropdownMenuItem onClick={() => handleEdit(account)} className="flex gap-2 justify-start">
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Account
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(account.id)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Account
+                        <DropdownMenuItem asChild>
+                          <DeleteAccount id={account.id} />
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

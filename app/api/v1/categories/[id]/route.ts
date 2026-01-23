@@ -13,7 +13,7 @@ const updateCategorySchema = z.object({
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth();
@@ -23,10 +23,11 @@ export async function PATCH(
 
         const json = await req.json();
         const body = updateCategorySchema.parse(json);
+        const { id } = await params;
 
         const updatedCategory = await categoryService.updateCategory(
             Number(session.user.id),
-            Number(params.id),
+            parseInt(id),
             body
         );
 
@@ -46,7 +47,7 @@ export async function PATCH(
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth();
@@ -54,9 +55,12 @@ export async function DELETE(
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
+        const { id } = await params;
+        console.log("[CATEGORY_DELETE]", id);
+
         const deletedCategory = await categoryService.deleteCategory(
             Number(session.user.id),
-            Number(params.id)
+            parseInt(id)
         );
 
         if (!deletedCategory) {

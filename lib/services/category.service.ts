@@ -1,5 +1,5 @@
 import db from "@/app/db";
-import { categoriesTable } from "@/app/db/schema";
+import { budgetsTable, categoriesTable } from "@/app/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 export class CategoryService {
@@ -32,6 +32,21 @@ export class CategoryService {
   }
 
   async deleteCategory(userId: number, categoryId: number) {
+
+    const budgetUsage = await db
+      .select({ id: budgetsTable.id })
+      .from(budgetsTable)
+      .where(
+        and(
+          eq(budgetsTable.userId, userId),
+          eq(budgetsTable.categoryId, categoryId)
+        )
+      )
+      .limit(1);
+
+    if (budgetUsage.length > 0) {
+      throw new Error("THIS CATEGORY CANNOT BE DELETED BECAUSE IT IS ASSIGNED TO AN ACTIVE BUDGET.");
+    }
     const [deleted] = await db
       .delete(categoriesTable)
       .where(and(eq(categoriesTable.id, categoryId), eq(categoriesTable.userId, userId)))
