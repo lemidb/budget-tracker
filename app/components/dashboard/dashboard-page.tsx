@@ -18,33 +18,93 @@ import {
 } from "recharts"
 import { Wallet, Target, ArrowUpRight, ArrowDownLeft } from "lucide-react"
 
-// Sample data - replace with real data from your API/database
-const monthlyData = [
-    { month: "Jan", income: 4500, expenses: 2400, budget: 3500 },
-    { month: "Feb", income: 5200, expenses: 2800, budget: 3500 },
-    { month: "Mar", income: 4800, expenses: 3200, budget: 3500 },
-    { month: "Apr", income: 5500, expenses: 2900, budget: 3500 },
-    { month: "May", income: 6200, expenses: 3500, budget: 3500 },
-    { month: "Jun", income: 5800, expenses: 3100, budget: 3500 },
-]
-
-const expenseByCategory = [
-    { name: "Housing", value: 1200 },
-    { name: "Food", value: 450 },
-    { name: "Transportation", value: 280 },
-    { name: "Entertainment", value: 320 },
-    { name: "Utilities", value: 350 },
-]
+import { useGetDashboardData } from "@/lib/queries/dashboard"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
 
+const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-card border border-border p-3 rounded-lg shadow-lg">
+                {payload.map((entry: any, index: number) => (
+                    <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
+                        <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: entry.payload.fill || entry.color }}
+                        />
+                        <span className="text-sm font-medium" style={{ color: entry.payload.fill || entry.color }}>
+                            {entry.name}:
+                        </span>
+                        <span className="text-sm font-bold text-card-foreground">
+                            ${entry.value.toLocaleString()}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        )
+    }
+    return null
+}
+
 export default function DashboardPage() {
-    const currentMonth = monthlyData[monthlyData.length - 1]
-    const totalIncome = monthlyData.reduce((sum, m) => sum + m.income, 0)
-    const totalExpenses = monthlyData.reduce((sum, m) => sum + m.expenses, 0)
-    const totalBudget = monthlyData[0].budget * 6
+    const { data, isLoading, error } = useGetDashboardData()
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-background p-4 md:p-8 w-full">
+                <div className="max-w-7xl mx-auto">
+                    <div className="mb-8">
+                        <Skeleton className="h-10 w-64 mb-2" />
+                        <Skeleton className="h-4 w-96" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        {[...Array(4)].map((_, i) => (
+                            <Card key={i} className="bg-card border-border">
+                                <CardHeader className="pb-2">
+                                    <Skeleton className="h-4 w-24" />
+                                </CardHeader>
+                                <CardContent>
+                                    <Skeleton className="h-8 w-32 mb-1" />
+                                    <Skeleton className="h-3 w-20" />
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <Skeleton className="lg:col-span-2 h-[400px]" />
+                        <Skeleton className="h-[400px]" />
+                    </div>
+                    <Skeleton className="h-[400px]" />
+                </div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center p-4">
+                <Card className="max-w-md w-full border-destructive">
+                    <CardHeader>
+                        <CardTitle className="text-destructive">Error Loading Dashboard</CardTitle>
+                        <CardDescription>
+                            {error instanceof Error ? error.message : "An unexpected error occurred while fetching dashboard data."}
+                        </CardDescription>
+                    </CardHeader>
+                </Card>
+            </div>
+        )
+    }
+
+    const { monthlyData = [], expenseByCategory = [] } = data || {}
+
+    const currentMonth = monthlyData[monthlyData.length - 1] || { income: 0, expenses: 0, budget: 0 }
+    const totalIncome = monthlyData.reduce((sum: number, m: any) => sum + m.income, 0)
+    const totalExpenses = monthlyData.reduce((sum: number, m: any) => sum + m.expenses, 0)
+    const totalBudget = monthlyData.reduce((sum: number, m: any) => sum + m.budget, 0)
     const balance = totalIncome - totalExpenses
-    const expensePercentage = ((totalExpenses / totalIncome) * 100).toFixed(1)
+    const expensePercentage = totalIncome > 0 ? ((totalExpenses / totalIncome) * 100).toFixed(1) : "0.0"
+    const budgetUsagePercentage = totalBudget > 0 ? ((totalExpenses / totalBudget) * 100).toFixed(0) : "0"
 
     return (
         <div className="min-h-screen bg-background p-4 md:p-8 w-full">
@@ -103,7 +163,7 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-card-foreground">
-                                {((totalExpenses / totalBudget) * 100).toFixed(0)}%
+                                {budgetUsagePercentage}%
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">of budget used</p>
                         </CardContent>
@@ -147,28 +207,31 @@ export default function DashboardPage() {
                                 <CardDescription className="text-muted-foreground">Current month</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <PieChart>
-                                        <Pie
-                                            data={expenseByCategory}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                            outerRadius={80}
-                                            fill="var(--chart-1)"
-                                            dataKey="value"
-                                        >
-                                            {expenseByCategory.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
-                                            labelStyle={{ color: "var(--card-foreground)" }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                {expenseByCategory.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <PieChart>
+                                            <Pie
+                                                data={expenseByCategory}
+                                                cx="50%"
+                                                cy="50%"
+                                                labelLine={false}
+                                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                                outerRadius={80}
+                                                fill="var(--chart-1)"
+                                                dataKey="value"
+                                            >
+                                                {expenseByCategory.map((_: any, index: number) => (
+                                                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip content={<CustomTooltip />} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                                        No expenses this month
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -184,7 +247,7 @@ export default function DashboardPage() {
                         <CardContent>
                             <ResponsiveContainer width="100%" height={300}>
                                 <LineChart
-                                    data={monthlyData.map((m) => ({
+                                    data={monthlyData.map((m: any) => ({
                                         month: m.month,
                                         savings: m.income - m.expenses,
                                     }))}

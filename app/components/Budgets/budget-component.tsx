@@ -15,7 +15,7 @@ export default function BudgetComponent() {
 
     if (isBudgetsLoading) {
         return (
-            <div className="container mx-auto flex h-full w-full flex-1 space-y-4 pt-6 flex-col gap-6 p-6 md:p-8 overflow-y-auto">
+            <div className="container mx-auto flex h-full w-full max-w-7xl flex-1 space-y-4 pt-6 flex-col gap-6 p-6 md:p-8 overflow-y-auto">
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
                         <Skeleton className="h-10 w-28" />

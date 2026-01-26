@@ -61,7 +61,7 @@ export default function BudgetCategoryPage() {
 
     if (isLoading) {
         return (
-            <div className="p-6 container mx-auto space-y-6">
+            <div className="w-full container flex flex-col h-full space-y-6 mx-auto max-w-7xl p-6 pt-8">
                 <div className="flex justify-between items-center">
                     <Skeleton className="h-10 w-48" />
                     <Skeleton className="h-10 w-32" />
